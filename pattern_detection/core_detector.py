@@ -1,35 +1,24 @@
 # pattern_detection/core_detector.py
 
 import os
-import sys
-
-# 診斷點 1：文件頂部，檢查是否讀取到文件
-print("診斷：core_detector.py 文件頂部已讀取。")
-
-# 將 'pattern_detection' 的父目錄添加到 Python 路徑
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-    print(f"診斷：已將專案根目錄 '{project_root}' 添加到 sys.path。") # 診斷點 2
-
-# 現在可以執行套件內的絕對匯入了
-from pattern_detection.layers import layer1_pre_screening
-from pattern_detection.layers import layer2_pattern_confirmation
-from pattern_detection.layers import layer3_machine_learning_judgment
-
-print("診斷：所有 Layer 模組已成功匯入。") # 診斷點 3
-
-# ... 其他原有的匯入，如 pandas, datetime, numpy, glob ...
 import pandas as pd
 from datetime import datetime
 import numpy as np
 import glob
 
-print("診斷：所有基礎模組已匯入。") # 診斷點 4
+# 診斷：core_detector.py 文件頂部已讀取。
+print("診斷：core_detector.py 文件頂部已讀取。")
 
-# 配置路徑
-STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\stock_data"
-MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\ml_model\\trained_model.pkl"
+# 導入各層的模組 (標準套件匯入方式，不再需要 sys.path.insert)
+from pattern_detection.layers import layer1_pre_screening
+from pattern_detection.layers import layer2_pattern_confirmation
+from pattern_detection.layers import layer3_machine_learning_judgment
+
+print("診斷：所有 Layer 模組已成功匯入。")
+
+# 配置路徑 (請根據您的實際路徑調整)
+STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\stock_data" # 已修正為 StockPicker
+MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\ml_model\\trained_model.pkl" # 假設模型路徑在此
 
 def load_stock_data(symbol):
     """載入特定股票的 K 線數據（未還原權息）。"""
@@ -54,23 +43,26 @@ def get_all_symbols():
     """從數據目錄讀取所有股票代碼。"""
     symbols = []
     # 使用 glob 更安全地遍歷 .csv 檔案
+    print(f"診斷：正在從 {STOCK_DATA_DIR} 載入股票代碼。") # 新增診斷點
+    if not os.path.exists(STOCK_DATA_DIR):
+        print(f"診斷：數據目錄 {STOCK_DATA_DIR} 不存在。") # 新增診斷點
+        return []
+    
     for filepath in glob.glob(os.path.join(STOCK_DATA_DIR, "*.csv")):
         filename = os.path.basename(filepath)
         symbol = os.path.splitext(filename)[0] # 獲取不帶副檔名的檔案名
         symbols.append(symbol)
     
-    # 這裡可以根據需要進行排序或篩選，例如只包含數字代碼
-    # symbols = sorted([s for s in symbols if s.isdigit()]) # 如果您只處理數字代碼
     return sorted(symbols)
 
 
 def main_detection_system():
     """核心型態檢測系統的主函數。"""
-    print("--- 啟動核心檢測系統 (基於未還原權息數據) ---") # 診斷點 5
-    print(f"診斷：STOCK_DATA_DIR 設定為: {STOCK_DATA_DIR}") # 診斷點 6
+    print("--- 啟動核心檢測系統 (基於未還原權息數據) ---")
+    print(f"診斷：STOCK_DATA_DIR 設定為: {STOCK_DATA_DIR}")
 
     all_symbols = get_all_symbols()
-    print(f"診斷：get_all_symbols() 返回 {len(all_symbols)} 支股票。") # 診斷點 7
+    print(f"診斷：get_all_symbols() 返回 {len(all_symbols)} 支股票。")
 
     if not all_symbols:
         print("錯誤：未找到任何股票數據檔案。請檢查 STOCK_DATA_DIR 配置。")
@@ -119,6 +111,8 @@ def main_detection_system():
                 
                 # 執行第三層：機器學習判斷
                 print("  > Layer 3: 正在執行機器學習綜合判斷...")
+                # 假設 layer3_machine_learning_judgment 模組和其 make_judgment 函數存在
+                # 且 make_judgment 函數能處理 confirmed_pattern_features 和模型路徑
                 final_judgment = layer3_machine_learning_judgment.make_judgment(confirmed_pattern_features, MODEL_PATH)
                 if final_judgment:
                     # --- 更新 Layer 3 總結 ---
@@ -142,12 +136,11 @@ def main_detection_system():
 
     if total_final_patterns_layer3 == 0:
         print("無三角收斂型態被檢測到，無需儲存。")
-    # else:
-    #     print("所有成功確認的型態已處理。") # 您可以在這裡添加儲存邏輯的提示
     
     print("--- 核心檢測系統執行完成 ---")
 
+
 if __name__ == "__main__":
-    print("診斷：進入 if __name__ == '__main__': 區塊。") # 診斷點 8
+    print("診斷：進入 if __name__ == '__main__': 區塊。")
     main_detection_system()
-    print("診斷：main_detection_system() 執行完成。") # 診斷點 9
+    print("診斷：main_detection_system() 執行完成。")
