@@ -1,15 +1,24 @@
 # pattern_detection/core_detector.py
 
 import os
-import pandas as pd
-from datetime import datetime
-import numpy as np
-import glob
+import sys
 
-# 導入各層的模組 (標準套件匯入方式)
+# 將 'pattern_detection' 的父目錄添加到 Python 路徑
+# 這樣可以直接找到 pattern_detection.layers
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root) # 插入到最前面優先搜尋
+
+# 現在可以執行相對匯入了
 from pattern_detection.layers import layer1_pre_screening
 from pattern_detection.layers import layer2_pattern_confirmation
 from pattern_detection.layers import layer3_machine_learning_judgment
+
+# ... 其他匯入 ...
+import pandas as pd # 這些在上方已有的匯入維持不動
+from datetime import datetime
+import numpy as np
+import glob
 
 # 配置路徑 (請根據您的實際路徑調整)
 STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\台股股價蒐集\\stock_data" # 已修正為 stock_data
