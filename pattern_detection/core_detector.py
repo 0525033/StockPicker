@@ -5,11 +5,11 @@ import pandas as pd
 from datetime import datetime
 import numpy as np
 import glob
+# 移除 import sys，它可能是干擾源
 
-# 診斷：core_detector.py 文件頂部已讀取。
 print("診斷：core_detector.py 文件頂部已讀取。")
 
-# 導入各層的模組 (標準套件匯入方式，不再需要 sys.path.insert)
+# 導入各層的模組 (標準套件匯入方式)
 from pattern_detection.layers import layer1_pre_screening
 from pattern_detection.layers import layer2_pattern_confirmation
 from pattern_detection.layers import layer3_machine_learning_judgment
@@ -17,19 +17,27 @@ from pattern_detection.layers import layer3_machine_learning_judgment
 print("診斷：所有 Layer 模組已成功匯入。")
 
 # 配置路徑 (請根據您的實際路徑調整)
-STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\stock_data" # 已修正為 StockPicker
-MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\ml_model\\trained_model.pkl" # 假設模型路徑在此
+STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\stock_data"
+MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\ml_model\\trained_model.pkl"
 
 def load_stock_data(symbol):
-    """載入特定股票的 K 線數據（未還原權息）。"""
-    file_path = os.path.join(STOCK_DATA_DIR, f"{symbol}.csv")
+    """載入特定股票的 K 線數據（未還原權息），從 Parquet 檔案。"""
+    file_path = os.path.join(STOCK_DATA_DIR, f"{symbol}.parquet") # *** 修正為 .parquet ***
     if not os.path.exists(file_path):
         print(f"  > 錯誤：找不到 {symbol} 的數據檔於 {file_path}")
         return None
     try:
-        df = pd.read_csv(file_path, parse_dates=['Date'])
-        df.set_index('Date', inplace=True)
-        # 確保必要的欄位存在
+        # *** 修正為 pd.read_parquet ***
+        df = pd.read_parquet(file_path)
+        # 確保 'Date' 欄位是 datetime 類型並設定為索引
+        if 'Date' in df.columns:
+            df['Date'] = pd.to_datetime(df['Date'])
+            df.set_index('Date', inplace=True)
+        else:
+            print(f"  > 警告：{symbol} 數據缺少 'Date' 欄位。")
+            return None
+
+        # 確保必要的 OHLCV 欄位存在
         required_cols = ['Open', 'High', 'Low', 'Close', 'Capacity']
         if not all(col in df.columns for col in required_cols):
             print(f"  > 警告：{symbol} 數據缺少必要的 OHLCV 欄位。")
@@ -40,15 +48,15 @@ def load_stock_data(symbol):
         return None
 
 def get_all_symbols():
-    """從數據目錄讀取所有股票代碼。"""
+    """從數據目錄讀取所有股票代碼（基於 .parquet 檔案）。"""
     symbols = []
-    # 使用 glob 更安全地遍歷 .csv 檔案
-    print(f"診斷：正在從 {STOCK_DATA_DIR} 載入股票代碼。") # 新增診斷點
+    print(f"診斷：正在從 {STOCK_DATA_DIR} 載入股票代碼。")
     if not os.path.exists(STOCK_DATA_DIR):
-        print(f"診斷：數據目錄 {STOCK_DATA_DIR} 不存在。") # 新增診斷點
+        print(f"診斷：數據目錄 {STOCK_DATA_DIR} 不存在。")
         return []
     
-    for filepath in glob.glob(os.path.join(STOCK_DATA_DIR, "*.csv")):
+    # *** 遍歷 .parquet 檔案 ***
+    for filepath in glob.glob(os.path.join(STOCK_DATA_DIR, "*.parquet")):
         filename = os.path.basename(filepath)
         symbol = os.path.splitext(filename)[0] # 獲取不帶副檔名的檔案名
         symbols.append(symbol)
@@ -111,8 +119,6 @@ def main_detection_system():
                 
                 # 執行第三層：機器學習判斷
                 print("  > Layer 3: 正在執行機器學習綜合判斷...")
-                # 假設 layer3_machine_learning_judgment 模組和其 make_judgment 函數存在
-                # 且 make_judgment 函數能處理 confirmed_pattern_features 和模型路徑
                 final_judgment = layer3_machine_learning_judgment.make_judgment(confirmed_pattern_features, MODEL_PATH)
                 if final_judgment:
                     # --- 更新 Layer 3 總結 ---
