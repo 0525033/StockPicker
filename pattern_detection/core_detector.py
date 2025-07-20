@@ -3,26 +3,33 @@
 import os
 import sys
 
+# 診斷點 1：文件頂部，檢查是否讀取到文件
+print("診斷：core_detector.py 文件頂部已讀取。")
+
 # 將 'pattern_detection' 的父目錄添加到 Python 路徑
-# 這樣可以直接找到 pattern_detection.layers
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
-    sys.path.insert(0, project_root) # 插入到最前面優先搜尋
+    sys.path.insert(0, project_root)
+    print(f"診斷：已將專案根目錄 '{project_root}' 添加到 sys.path。") # 診斷點 2
 
-# 現在可以執行相對匯入了
+# 現在可以執行套件內的絕對匯入了
 from pattern_detection.layers import layer1_pre_screening
 from pattern_detection.layers import layer2_pattern_confirmation
 from pattern_detection.layers import layer3_machine_learning_judgment
 
-# ... 其他匯入 ...
-import pandas as pd # 這些在上方已有的匯入維持不動
+print("診斷：所有 Layer 模組已成功匯入。") # 診斷點 3
+
+# ... 其他原有的匯入，如 pandas, datetime, numpy, glob ...
+import pandas as pd
 from datetime import datetime
 import numpy as np
 import glob
 
-# 配置路徑 (請根據您的實際路徑調整)
-STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\台股股價蒐集\\stock_data" # 已修正為 stock_data
-MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\台股股價蒐集\\ml_model\\trained_model.pkl" # 您的模型路徑
+print("診斷：所有基礎模組已匯入。") # 診斷點 4
+
+# 配置路徑
+STOCK_DATA_DIR = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\stock_data"
+MODEL_PATH = "C:\\Users\\my861\\OneDrive\\Desktop\\StockPicker\\ml_model\\trained_model.pkl"
 
 def load_stock_data(symbol):
     """載入特定股票的 K 線數據（未還原權息）。"""
@@ -59,9 +66,12 @@ def get_all_symbols():
 
 def main_detection_system():
     """核心型態檢測系統的主函數。"""
-    print("--- 啟動核心檢測系統 (基於未還原權息數據) ---")
+    print("--- 啟動核心檢測系統 (基於未還原權息數據) ---") # 診斷點 5
+    print(f"診斷：STOCK_DATA_DIR 設定為: {STOCK_DATA_DIR}") # 診斷點 6
 
     all_symbols = get_all_symbols()
+    print(f"診斷：get_all_symbols() 返回 {len(all_symbols)} 支股票。") # 診斷點 7
+
     if not all_symbols:
         print("錯誤：未找到任何股票數據檔案。請檢查 STOCK_DATA_DIR 配置。")
         return
@@ -138,4 +148,6 @@ def main_detection_system():
     print("--- 核心檢測系統執行完成 ---")
 
 if __name__ == "__main__":
+    print("診斷：進入 if __name__ == '__main__': 區塊。") # 診斷點 8
     main_detection_system()
+    print("診斷：main_detection_system() 執行完成。") # 診斷點 9
